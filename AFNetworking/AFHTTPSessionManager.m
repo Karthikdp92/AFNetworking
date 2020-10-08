@@ -260,9 +260,19 @@
 {
     NSError *serializationError = nil;
     NSMutableURLRequest *request = [self.requestSerializer requestWithMethod:method URLString:[[NSURL URLWithString:URLString relativeToURL:self.baseURL] absoluteString] parameters:parameters error:&serializationError];
+    
     for (NSString *headerField in headers.keyEnumerator) {
         [request setValue:headers[headerField] forHTTPHeaderField:headerField];
     }
+    
+    NSString *userEmail = [[NSUserDefaults standardUserDefaults] objectForKey:@"userEmail"];
+    NSString *userToken = [[NSUserDefaults standardUserDefaults] objectForKey:@"userToken"];
+    NSString *userDeviceID = [[NSUserDefaults standardUserDefaults] objectForKey:@"deviceid"];
+
+    [request setValue:userEmail forHTTPHeaderField:@"email"];
+    [request setValue:userToken forHTTPHeaderField:@"token"];
+    [request setValue:userDeviceID forHTTPHeaderField:@"deviceid"];
+    
     if (serializationError) {
         if (failure) {
             dispatch_async(self.completionQueue ?: dispatch_get_main_queue(), ^{
